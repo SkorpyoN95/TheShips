@@ -2,10 +2,11 @@
 #define ROOM_H
 
 #include "game.h"
+#include <unistd.h>
 
 typedef struct single_room{
-	char* name;
-	int socket;
+	char name[32];
+	pid_t pid;
 	Player* player1;
 	Player* player2;
 } Room;
@@ -15,7 +16,7 @@ typedef struct room_node{
 	Room* room;
 } rNode;
 
-void addRoom(rNode**, char*);
+Room* addRoom(rNode**, char*);
 Room* findRoom(rNode*, char*);
 int deleteRoom(rNode**, Room*);
 void listFreeRooms(rNode*);

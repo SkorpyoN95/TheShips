@@ -2,15 +2,23 @@ SRC =\
 	source/serverManager.c \
 	source/room.c \
 	source/game.c
+	
+LIBS =\
+	serverManager.o \
+	room.o \
+	game.o
 
 all: server client
 	
 	
-server:
-	gcc $(FLAGS) -Wall server.c $(SRC) -o server -Iinclude/
+server: libs
+	gcc $(FLAGS) -Wall server.c $(LIBS) -o server -Iinclude/
 	
-client:
-	gcc $(FLAGS) -Wall client.c $(SRC) -o client -Iinclude/
+client: libs
+	gcc $(FLAGS) -Wall client.c $(LIBS) -o client -Iinclude/
+	
+libs:
+	gcc $(FLAGS) -Wall -c $(SRC) -Iinclude/
 	
 clean:
-	rm -f server client
+	rm -f server client *.o

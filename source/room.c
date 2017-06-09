@@ -3,17 +3,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void addRoom(rNode** head, char* name){
+Room* addRoom(rNode** head, char* name){
 	rNode* tmp = *head;
 	while(tmp)	tmp = tmp->next;
-	tmp = (rNode*)malloc(sizeof(rNode));
+	
+	if((tmp = (rNode*)malloc(sizeof(rNode))) == NULL)
+		return NULL;
+		
 	tmp->next = NULL;
-	tmp->room = (Room*)malloc(sizeof(Room));
-	tmp->room->name = name;
-	tmp->room->player1 = (Player*)malloc(sizeof(Player));
-	tmp->room->player2 = (Player*)malloc(sizeof(Player));
+	if((tmp->room = (Room*)malloc(sizeof(Room))) == NULL){
+		free(tmp);
+		return NULL;
+	}
+	
+	strncpy(tmp->room->name, name, 32);
+	if((tmp->room->player1 = (Player*)malloc(sizeof(Player))) == NULL){
+		free(tmp->room);
+		free(tmp);
+		return NULL;
+	}
+	if((tmp->room->player2 = (Player*)malloc(sizeof(Player))) == NULL){
+		free(tmp->room->player1);
+		free(tmp->room);
+		free(tmp);
+		return NULL;
+	}
+	
 	if(!*head) *head = tmp;
-	return;
+	return tmp->room;
 }
 
 int deleteRoom(rNode** head, Room* room){
@@ -21,11 +38,18 @@ int deleteRoom(rNode** head, Room* room){
 	rNode* tmp = *head;
 	if((*head)->room == room){
 		*head = (*head)->next;
+		free(tmp->room->player1);
+		free(tmp->room->player2);
+		free(tmp->room);
 		free(tmp);
+		*head = NULL;
 		return 0;
 	}
 	while(tmp->next && tmp->next->room != room)	tmp = tmp->next;
 	if(!tmp->next) return -1;
+	free(tmp->next->room->player1);
+	free(tmp->next->room->player2);
+	free(tmp->next->room);
 	free(tmp->next);
 	tmp->next = NULL;
 	return 0;
@@ -39,7 +63,8 @@ Room* findRoom(rNode* head, char* name){
 
 void listFreeRooms(rNode* head){
 	while(head){
-		printf("%s\t%s\n", head->room->name, head->room->player1->name);
+		if(!head->room->player2)
+			printf("%s\t%s\n", head->room->name, head->room->player1->name);
 		head = head->next;
 	}
 }

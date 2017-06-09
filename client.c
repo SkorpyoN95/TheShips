@@ -35,15 +35,11 @@ int main(int argc, char **argv)
 	printf("Enter host's name:\n");
 	scanf("%s", (char*)hostname);
 	
-	/*switch(option){
-		case 'c': 	sprintf(msg, "%c%s:%s", option, hostname, nickname);
-					if(write(fd, msg, strlen(msg)) == -1) perror("writing to host"); break;
-		case 'j': 	if(write(fd, msg, strlen(msg)) == -1) perror("writing to host"); break;
-		default: break;
-	}*/
-	//sprintf(msg, "%c%s:%s", option, hostname, nickname);
-	if(sendRequest(fd, option, 2, hostname, nickname))	perror("sending to server");
-	//if(write(fd, msg, strlen(msg)) == -1) perror("writing to host");
+	if(sendRequest(fd, option, 2, hostname, nickname))	printf("Nothing has been sent.\n");
+	
+	while(1){
+		;
+	}
 	
 	close(fd);
 	

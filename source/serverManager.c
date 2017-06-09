@@ -72,15 +72,39 @@ int joinServer(char* ip){
 }
 
 int sendRequest(int sock_id, reqType t, int n, ...){
-	char* format = (char*)malloc(n+n+n+1);
-	memset(format, 0, n+n+n+1);
-	format[0] = t; format[1] = '%'; format[2] = 's';
-	for(int i = 0; i < n-1; ++i)
-		strncpy(format + 3 + 3*i, ":%s", 3);
-	va_list vl;
-	va_start(vl, n);
-	int result = vdprintf(sock_id, format, vl) > 0 ? 0 : -1;
-	va_end(vl);
-	free(format);
+	if(n < 0) return -1;
+	int result;
+	if(!n)
+		result = dprintf(sock_id, "%c", t) > 0 ? 0 : -1;
+	else{
+		char* format = (char*)malloc(n+n+n+1);
+		memset(format, 0, n+n+n+1);
+		format[0] = t; format[1] = '%'; format[2] = 's';
+		for(int i = 0; i < n-1; ++i)
+			strncpy(format + 3 + 3*i, ":%s", 3);
+		va_list vl;
+		va_start(vl, n);
+		result = vdprintf(sock_id, format, vl) > 0 ? 0 : -1;
+		va_end(vl);
+		free(format);
+	}
 	return result;
+}
+
+void launchRoom(rNode** head, Room* room){
+	pid_t room_pid;
+	Player p1, p2;
+	int r_q_id;
+	switch(room_pid = fork()){
+		case -1:	perror("Creating new process for room");
+					deleteRoom(head, room);
+					break;
+		case 0:		if((r_q_id = msgget(IPC_PRIVATE, 0)) == -1){
+						perror("Creating room msg queue");
+						exit(1);
+					}
+					exit(0);
+					break;
+		default:	room->pid = room_pid;
+	}
 }
