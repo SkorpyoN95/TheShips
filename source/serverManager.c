@@ -70,3 +70,17 @@ int joinServer(char* ip){
 	
 	return room_id;
 }
+
+int sendRequest(int sock_id, reqType t, int n, ...){
+	char* format = (char*)malloc(n+n+n+1);
+	memset(format, 0, n+n+n+1);
+	format[0] = t; format[1] = '%'; format[2] = 's';
+	for(int i = 0; i < n-1; ++i)
+		strncpy(format + 3 + 3*i, ":%s", 3);
+	va_list vl;
+	va_start(vl, n);
+	int result = vdprintf(sock_id, format, vl) > 0 ? 0 : -1;
+	va_end(vl);
+	free(format);
+	return result;
+}

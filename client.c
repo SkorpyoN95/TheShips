@@ -41,8 +41,9 @@ int main(int argc, char **argv)
 		case 'j': 	if(write(fd, msg, strlen(msg)) == -1) perror("writing to host"); break;
 		default: break;
 	}*/
-	sprintf(msg, "%c%s:%s", option, hostname, nickname);
-	if(write(fd, msg, strlen(msg)) == -1) perror("writing to host");
+	//sprintf(msg, "%c%s:%s", option, hostname, nickname);
+	if(sendRequest(fd, option, 2, hostname, nickname))	perror("sending to server");
+	//if(write(fd, msg, strlen(msg)) == -1) perror("writing to host");
 	
 	close(fd);
 	

@@ -5,6 +5,7 @@
 //#include <gtk/gtk.h>
 #include "serverManager.h"
 #include "room.h"
+#include "game.h"
 
 int main(int argc, char **argv)
 {
@@ -15,10 +16,10 @@ int main(int argc, char **argv)
 	Room* door;
 	char* command_ptr, * support_ptr;
 	
-	memset(buff, 0, 128);
 	fd = launchServer(ip);
 	printf("Server launched. IP: %s\n", ip);
 	while(1){
+		memset(buff, 0, 128);
 		support_ptr = NULL;
 		if((cld = accept(fd, NULL, NULL)) == -1) perror("accept failed");
 		if(recv(cld, buff, 128, 0) == -1) perror("recieve failed");
