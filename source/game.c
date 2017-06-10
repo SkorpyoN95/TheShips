@@ -1,5 +1,8 @@
 #include "game.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
 
 void putShipsOnMap(Player* pl){
 	int accept = 0;
@@ -23,13 +26,12 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 		return;
 	}
 	
-	first = atoi(begin[1]) - 1; last = atoi(end[1]) - 1;
+	first = atoi(begin + 1) - 1; last = atoi(end + 1) - 1;
 	if(first < 0 || first > 9 || last < 0 || last > 9){
 		printf("Invalid characters\n");
 		return;
 	}
 	
-	int first = atoi(begin[1]), last = atoi(end[1]);
 	if(begin[0] != end[0] && first != last){
 		printf("That's not a ship-shape\n");
 		return;
@@ -118,7 +120,7 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 					return;
 				}
 				if(*(pl->board + i + 10) != SEA){
-					printf("Collision detected\n");git 
+					printf("Collision detected\n");
 					return;
 				}
 				if(i%10 < 9 && *(pl->board + i + 11) != SEA){
@@ -128,4 +130,12 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 			}
 		}
 	}//validation ends here
+	
+	for(int i = first; i <= last; i += step){
+		*(*(pl->board) + i) = SHIP;
+		pl->ships.all_together[number] = i;
+		number++;
+	}
+		
+	return;
 }

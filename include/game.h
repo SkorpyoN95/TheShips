@@ -7,7 +7,7 @@ typedef union all_ships{
 	fldState ship4mast[1][4];
 	fldState ship3mast[2][3];
 	fldState ship2mast[3][2];
-	fldState ship4mast[4][1];
+	fldState ship1mast[4][1];
 	fldState all_together[20];
 } Fleet;
 

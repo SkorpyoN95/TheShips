@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 	printf("Enter host's name:\n");
 	scanf("%s", (char*)hostname);
 	
-	if(sendRequest(fd, option, 2, hostname, nickname)){
+	if(sendRequest(fd, option, 2, hostname, me.name)){
 		printf("Nothing has been sent.\n");
 		exit(1);
 	}
