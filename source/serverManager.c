@@ -95,16 +95,26 @@ void launchRoom(rNode** head, Room* room){
 	pid_t room_pid;
 	Player p1, p2;
 	int r_q_id;
+	Message send, recieve;
 	switch(room_pid = fork()){
 		case -1:	perror("Creating new process for room");
 					deleteRoom(head, room);
 					break;
-		case 0:		if((r_q_id = msgget(IPC_PRIVATE, 0)) == -1){
+		case 0:		if((r_q_id = msgget(IPC_PRIVATE, 0666)) == -1){
 						perror("Creating room msg queue");
+						exit(1);
+					}
+					send.mtype = 999;
+					send.mid = r_q_id;
+					if(msgsnd(s_q_id, &send, 1024 + sizeof(int), 0) == -1){
+						perror("Sending room msg queue id failed");
 						exit(1);
 					}
 					exit(0);
 					break;
 		default:	room->pid = room_pid;
+					if(msgrcv(s_q_id, &recieve, 1024 + sizeof(int), 999, 0) == -1)	perror("Recieving room msg queue id failed");
+					else 	room->rqid = recieve.mid;
+					break;
 	}
 }

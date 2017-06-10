@@ -11,8 +11,7 @@ int main(int argc, char **argv)
 	Room* act_room;
 	char* command_ptr, * support_ptr;
 	key_t server_key = ftok("./", 'P');
-	int s_q_id; 
-	if((s_q_id = msgget(server_key, IPC_CREAT | IPC_EXCL)) == -1){
+	if((s_q_id = msgget(server_key, 0666 | IPC_CREAT)) == -1){
 		perror("Creating server msg queue");
 		exit(1);
 	}
