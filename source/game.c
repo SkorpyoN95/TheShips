@@ -16,16 +16,12 @@ void putShipsOnMap(Player* pl){
 }
 
 void addShip(Player* pl, int masts, int number, char* begin, char* end){
-<<<<<<< HEAD
 	int first, last, step;
-=======
->>>>>>> 0c51fcbc26bfe318b37a9278d8be9f4831590286
 	begin[0] = tolower(begin[0]); end[0] = tolower(end[0]);
 	if(begin[0] < 'a' || begin[0] > 'j' || end[0] < 'a' || end[0] > 'j'){
 		printf("Invalid characters\n");
 		return;
 	}
-<<<<<<< HEAD
 	
 	first = atoi(begin[1]) - 1; last = atoi(end[1]) - 1;
 	if(first < 0 || first > 9 || last < 0 || last > 9){
@@ -33,24 +29,18 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 		return;
 	}
 	
-=======
 	int first = atoi(begin[1]), last = atoi(end[1]);
->>>>>>> 0c51fcbc26bfe318b37a9278d8be9f4831590286
 	if(begin[0] != end[0] && first != last){
 		printf("That's not a ship-shape\n");
 		return;
 	}
 	first += (begin[0] - 'a')*10; last += (end[0] - 'a')*10;
-<<<<<<< HEAD
 	
 	step = masts != 1 ? (last - first) / (masts - 1) : 1;
-=======
->>>>>>> 0c51fcbc26bfe318b37a9278d8be9f4831590286
 	if(last-first != masts-1 && last-first != (masts-1)*10){
 		printf("Ships' length doesn't match the range\n");
 		return;
 	}
-<<<<<<< HEAD
 	
 	for(int i = first; i <= last; i += step){
 		if(*(pl->board + i) != SEA){
@@ -138,6 +128,4 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 			}
 		}
 	}//validation ends here
-=======
->>>>>>> 0c51fcbc26bfe318b37a9278d8be9f4831590286
 }
