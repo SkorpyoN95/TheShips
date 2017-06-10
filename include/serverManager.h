@@ -14,7 +14,15 @@
 #include <sys/msg.h>
 #include "room.h"
 
-typedef enum request_type { CREATE = 'c', JOIN = 'j', LIST = 'l' } reqType;
+int s_q_id;
+
+typedef enum request_type { CREATE = 'c', JOIN = 'j', LIST = 'l', START = 's' } reqType;
+
+typedef struct msgbuf {
+  long mtype;
+  int mid;
+  char mtext[1024];
+} Message;
 
 int launchServer(char*);
 int joinServer(char*);

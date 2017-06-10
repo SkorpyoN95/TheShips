@@ -7,6 +7,7 @@
 typedef struct single_room{
 	char name[32];
 	pid_t pid;
+	int rqid;
 	Player* player1;
 	Player* player2;
 } Room;
