@@ -115,6 +115,8 @@ void launchRoom(rNode** head, Room* room){
 		default:	room->pid = room_pid;
 					if(msgrcv(s_q_id, &recieve, 1024 + sizeof(int), 999, 0) == -1)	perror("Recieving room msg queue id failed");
 					else 	room->rqid = recieve.mid;
+					dprintf(room->player1->sock_id, "%c", START);
+					dprintf(room->player2->sock_id, "%c", START);
 					break;
 	}
 }

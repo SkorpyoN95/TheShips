@@ -22,12 +22,7 @@ Room* addRoom(rNode** head, char* name){
 		free(tmp);
 		return NULL;
 	}
-	if((tmp->room->player2 = (Player*)malloc(sizeof(Player))) == NULL){
-		free(tmp->room->player1);
-		free(tmp->room);
-		free(tmp);
-		return NULL;
-	}
+	tmp->room->player2 = NULL;
 	
 	if(!*head) *head = tmp;
 	return tmp->room;

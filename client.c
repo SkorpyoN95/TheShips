@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-//#include <gtk/gtk.h>
 #include "serverManager.h"
 #include "room.h"
 
@@ -15,7 +14,8 @@ int main(int argc, char **argv)
 	char ip[16];
 	char buff[256];
 	char hostname[32];
-	int fd, sd;
+	char option;
+	int fd;
 	
 	memset(ip, 0, 16);
 	memset(buff, 0, 256);
@@ -27,38 +27,40 @@ int main(int argc, char **argv)
 	printf("Who are you?\n");
 	scanf("%s", (char*)me.name);
 	
-	printf("Wanna (c)reate new room or (j)oin to one? ");
-	scanf("\n");
-	char option = getchar();
-	
-	printf("Enter host's name:\n");
-	scanf("%s", (char*)hostname);
-	
-	if(sendRequest(fd, option, 2, hostname, me.name)){
-		printf("Nothing has been sent.\n");
-		exit(1);
-	}
+	do{
+		printf("Wanna (c)reate new room or (j)oin to one? ");
+		scanf("\n");
+		option = getchar();
+		
+		printf("Enter host's name:\n");
+		scanf("%s", (char*)hostname);
+		
+		if(sendRequest(fd, option, 2, hostname, me.name)){
+			printf("Nothing has been sent.\n");
+			exit(1);
+		}
+	}while(option == LIST);
 	
 	printf("Wait untill everybody is connected...\n");
-	if((sd = accept(fd, NULL, NULL)) == -1){
-		perror("accept failed");
-		exit(1);
-	}
-	if(recv(sd, buff, 256, 0) == -1){
+	if(recv(fd, buff, 256, 0) == -1){
 		perror("recieve failed");
 		exit(1);
 	}
+	else
+		printf("Gotcha!\n");
 	
 	if(buff[0] != START){
 		printf("Unexpected request type, program shuts down.\n");
 		exit(1);
 	}
+	else
+		printf("Lets play the game\n");
 	
 	
+	putShipsOnMap(&me);
 	
-	while(1){
-		;
-	}
+	//while(1){
+	//}
 	
 	close(fd);
 	

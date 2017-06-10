@@ -1,6 +1,13 @@
 #ifndef GAME_H
 #define GAME_H
 
+#define RED_POLE 	"\x1B[31m\254\x1B[0m"
+#define GRN_POLE	"\x1B[32m\254\x1B[0m"
+#define YEL_POLE	"\x1B[33m\254\x1B[0m"
+#define BLU_POLE	"\x1B[34m\254\x1B[0m"
+#define BLK_POLE	"\254"
+#define RESET		"\x1B[0m"
+
 typedef enum field_state {SEA, SHIP, DAMAGED, WRECK} fldState;
 
 typedef union all_ships{
@@ -11,8 +18,9 @@ typedef union all_ships{
 	fldState all_together[20];
 } Fleet;
 
-typedef struct player{
+typedef struct{
 	char name[32];
+	int sock_id;
 	fldState board[10][10];
 	Fleet ships;
 } Player;
@@ -20,5 +28,6 @@ typedef struct player{
 void putShipsOnMap(Player*);
 void addShip(Player*, int, int, char*, char*);
 void removeShip(Player*, int, int);
+void showBoard(fldState*);
 
 #endif

@@ -36,16 +36,19 @@ int main(int argc, char **argv)
 								act_room = addRoom(&room_list, command_ptr);
 								if(act_room){
 									strncpy(act_room->player1->name, support_ptr, 32);
+									act_room->player1->sock_id = cld;
 									printf("New room created. Name: %s\n", command_ptr);
-									launchRoom(&room_list, act_room);
 								}
 								break;
 								
 				case JOIN: 		command_ptr = strtok_r(buff+1, ":", &support_ptr);
 								act_room = findRoom(room_list, command_ptr);
 								if(act_room){
+									act_room->player2 = (Player*)malloc(sizeof(Player));
 									strncpy(act_room->player2->name, support_ptr, 32);
+									act_room->player2->sock_id = cld;
 									printf("You joined to room: %s\n", act_room->name);
+									launchRoom(&room_list, act_room);
 								}
 								else
 									printf("Room not found\n");
