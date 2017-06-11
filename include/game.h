@@ -1,11 +1,11 @@
 #ifndef GAME_H
 #define GAME_H
 
-#define RED_POLE 	"\x1B[31m\254\x1B[0m"
-#define GRN_POLE	"\x1B[32m\254\x1B[0m"
-#define YEL_POLE	"\x1B[33m\254\x1B[0m"
-#define BLU_POLE	"\x1B[34m\254\x1B[0m"
-#define BLK_POLE	"\254"
+#define RED_POLE 	"\x1B[31m\u25A0\x1B[0m"
+#define GRN_POLE	"\x1B[32m\u25A0\x1B[0m"
+#define YEL_POLE	"\x1B[33m\u25A0\x1B[0m"
+#define BLU_POLE	"\x1B[34m\u25A0\x1B[0m"
+#define BLK_POLE	"\u25A0"
 #define RESET		"\x1B[0m"
 
 typedef enum field_state {SEA, SHIP, DAMAGED, WRECK} fldState;

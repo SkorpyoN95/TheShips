@@ -19,26 +19,37 @@ int main(int argc, char **argv)
 	
 	memset(ip, 0, 16);
 	memset(buff, 0, 256);
-	printf("Put host IP: ");
+	printf("Put host IP:\n");
 	scanf("%s", (char*)ip);
+	getchar();
 	if((fd = joinServer(ip)) == -1) 	printf("Joining server %s failed.\n", ip);
 	else								printf("Joined server, IP: %s\n", ip);
 	
 	printf("Who are you?\n");
 	scanf("%s", (char*)me.name);
+	getchar();
 	
 	do{
-		printf("Wanna (c)reate new room or (j)oin to one? ");
-		scanf("\n");
-		option = getchar();
+		printf("Wanna (c)reate new room, (j)oin to one or (l)ist some?\n");
+		scanf("\n\t\r%c", &option);
+		getchar();
 		
-		printf("Enter host's name:\n");
-		scanf("%s", (char*)hostname);
+		if(option != LIST){
+			printf("Enter host's name:\n");
+			scanf("%s", (char*)hostname);
+			getchar();
+		}
 		
 		if(sendRequest(fd, option, 2, hostname, me.name)){
 			printf("Nothing has been sent.\n");
 			exit(1);
 		}
+		if(recv(fd, buff, 256, 0) == -1){
+			perror("recieve failed");
+			exit(1);
+		}
+		printf("%s", buff);
+		memset(buff, 0, 256);
 	}while(option == LIST);
 	
 	printf("Wait untill everybody is connected...\n");

@@ -20,6 +20,6 @@ typedef struct room_node{
 Room* addRoom(rNode**, char*);
 Room* findRoom(rNode*, char*);
 int deleteRoom(rNode**, Room*);
-void listFreeRooms(rNode*);
+void listFreeRooms(rNode*, char*);
 
 #endif

@@ -56,10 +56,14 @@ Room* findRoom(rNode* head, char* name){
 	return head->room;
 }
 
-void listFreeRooms(rNode* head){
+void listFreeRooms(rNode* head, char* buff){
 	while(head){
 		if(!head->room->player2)
-			printf("%s\t%s\n", head->room->name, head->room->player1->name);
+			snprintf(buff + strlen(buff), 256-strlen(buff), "%s\t%s\n",head->room->name, head->room->player1->name);
 		head = head->next;
+	}
+	if(!strlen(buff)){
+		snprintf(buff, 256, "There is no room available\n");
+		return;
 	}
 }

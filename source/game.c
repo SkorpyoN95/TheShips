@@ -75,50 +75,50 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 			return;
 		}
 		if(step == 1){
-			if(i > 9 && *(*(pl->board + i - 10)) != SEA){
+			if(i > 9 && *(*(pl->board) + i - 10) != SEA){
 				printf("Collision detected\n");
 				return;
 			}
-			if(i < 90 && *(*(pl->board + i + 10)) != SEA){
+			if(i < 90 && *(*(pl->board) + i + 10) != SEA){
 				printf("Collision detected\n");
 				return;
 			}
 		}
 		if(step == 10){
-			if(i%10 > 0 && *(*(pl->board + i - 1)) != SEA){
+			if(i%10 > 0 && *(*(pl->board) + i - 1) != SEA){
 				printf("Collision detected\n");
 				return;
 			}
-			if(i%10 < 9 && *(*(pl->board + i + 1)) != SEA){
+			if(i%10 < 9 && *(*(pl->board) + i + 1) != SEA){
 				printf("Collision detected\n");
 				return;
 			}
 		}
 		if(i == first){
 			if(step == 1 && i%10 > 0){
-				if(i > 10 && *(*(pl->board + i - 11)) != SEA){
+				if(i > 10 && *(*(pl->board) + i - 11) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
-				if(i > 0 && *(*(pl->board + i - 1)) != SEA){
+				if(i > 0 && *(*(pl->board) + i - 1) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
-				if(i < 90 && *(*(pl->board + i + 9)) != SEA){
+				if(i < 90 && *(*(pl->board) + i + 9) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
 			}
 			if(step == 10 && i > 9){
-				if(i%10 > 0 && *(*(pl->board + i - 11)) != SEA){
+				if(i%10 > 0 && *(*(pl->board) + i - 11) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
-				if(*(*(pl->board + i - 10)) != SEA){
+				if(*(*(pl->board) + i - 10) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
-				if(i%10 < 9 && *(*(pl->board + i - 9)) != SEA){
+				if(i%10 < 9 && *(*(pl->board) + i - 9) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
@@ -126,29 +126,29 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 		}
 		if(i == last){
 			if(step == 1 && i%10 < 9){
-				if(i > 9 && *(*(pl->board + i - 9)) != SEA){
+				if(i > 9 && *(*(pl->board) + i - 9) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
-				if(i < 99 && **(pl->board + i + 1) != SEA){
+				if(i < 99 && *(*(pl->board) + i + 1) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
-				if(i < 90 && **(pl->board + i + 11) != SEA){
+				if(i < 90 && *(*(pl->board) + i + 11) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
 			}
 			if(step == 10 && i < 90){
-				if(i%10 > 0 && **(pl->board + i + 9) != SEA){
+				if(i%10 > 0 && *(*(pl->board) + i + 9) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
-				if(**(pl->board + i + 10) != SEA){
+				if(*(*(pl->board) + i + 10) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
-				if(i%10 < 9 && **(pl->board + i + 11) != SEA){
+				if(i%10 < 9 && *(*(pl->board) + i + 11) != SEA){
 					printf("Collision detected\n");
 					return;
 				}
