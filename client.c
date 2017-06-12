@@ -8,21 +8,26 @@ int main(int argc, char **argv)
 {
 	Player me, enemy;
 	
-	memset(me.board, SEA, 100);
-	memset(enemy.board, -1, 100);
+	for(int i = 0; i < 10; ++i)
+		for(int j = 0; j < 10; ++j){
+			me.board[i][j] = SEA;
+			enemy.board[i][j] = 0;
+		}
+	memset(me.ships, -1, 20*sizeof(int));
+	memset(enemy.ships, -1, 20*sizeof(int));
 	
 	char ip[16];
 	char buff[256];
 	char hostname[32];
 	char option;
-	int fd;
+	int sock_server;
 	
 	memset(ip, 0, 16);
 	memset(buff, 0, 256);
 	printf("Put host IP:\n");
 	scanf("%s", (char*)ip);
 	getchar();
-	if((fd = joinServer(ip)) == -1) 	printf("Joining server %s failed.\n", ip);
+	if((sock_server = joinServer(ip)) == -1) 	printf("Joining server %s failed.\n", ip);
 	else								printf("Joined server, IP: %s\n", ip);
 	
 	printf("Who are you?\n");
@@ -34,17 +39,22 @@ int main(int argc, char **argv)
 		scanf("\n\t\r%c", &option);
 		getchar();
 		
-		if(option != LIST){
+		if(option == LIST){
+			if(sendRequest(sock_server, option, 0)){
+				printf("Nothing has been sent.\n");
+				exit(1);
+			}
+		}else{
 			printf("Enter host's name:\n");
 			scanf("%s", (char*)hostname);
 			getchar();
+			if(sendRequest(sock_server, option, 2, hostname, me.name)){
+				printf("Nothing has been sent.\n");
+				exit(1);
+			}
 		}
-		
-		if(sendRequest(fd, option, 2, hostname, me.name)){
-			printf("Nothing has been sent.\n");
-			exit(1);
-		}
-		if(recv(fd, buff, 256, 0) == -1){
+
+		if(recv(sock_server, buff, 256, 0) == -1){
 			perror("recieve failed");
 			exit(1);
 		}
@@ -53,7 +63,7 @@ int main(int argc, char **argv)
 	}while(option == LIST);
 	
 	printf("Wait untill everybody is connected...\n");
-	if(recv(fd, buff, 256, 0) == -1){
+	if(recv(sock_server, buff, 256, 0) == -1){
 		perror("recieve failed");
 		exit(1);
 	}
@@ -67,13 +77,31 @@ int main(int argc, char **argv)
 	else
 		printf("Lets play the game\n");
 	
+	memset(buff, 0, 256);
 	
-	putShipsOnMap(&me);
+	
+	//putShipsOnMap(&me);
+	char packed_board[101];
+	packBoard(&me, packed_board);
+	if(sendRequest(sock_server, FILL_INFO, 3, hostname, me.name, packed_board) == -1){
+		printf("Nothing has been sent.\n");
+		exit(1);
+	}
+	printf("Waiting for your opponent...\n");
+	if(recv(sock_server, buff, 256, 0) == -1){
+		perror("recieve failed");
+		exit(1);
+	}
+	else
+		printf("Gotcha!\n");
+		
+	printf("%s", buff);
+	memset(buff, 0, 256);
 	
 	//while(1){
 	//}
 	
-	close(fd);
+	close(sock_server);
 	
 	return 0;
 }

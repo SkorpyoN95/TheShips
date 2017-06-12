@@ -16,17 +16,23 @@
 
 int s_q_id;
 
-typedef enum request_type { CREATE = 'c', JOIN = 'j', LIST = 'l', START = 's' } reqType;
+typedef enum request_type { CREATE = 'c', JOIN = 'j', LIST = 'l', START = 's', FILL_INFO = 'i' } reqType;
 
-typedef struct msgbuf {
+typedef struct {
   long mtype;
   int mid;
   char mtext[1024];
-} Message;
+} BaseMessage;
+
+typedef struct {
+	long mtype;
+	short mno;
+	Player mplayer;
+} PlayerDataMessage;
 
 int launchServer(char*);
 int joinServer(char*);
 int sendRequest(int, reqType, int, ...);
-void launchRoom(rNode**, Room*);
+void launchRoom(int, rNode**, Room*);
 
 #endif

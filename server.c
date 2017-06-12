@@ -19,17 +19,20 @@ int main(int argc, char **argv)
 	if((fd = launchServer(ip)) == -1) exit(1);
 	printf("Server launched. IP: %s\n", ip);
 	while(1){
+		printf("yet another loop\n");
 		memset(buff, 0, 256);
 		support_ptr = NULL;
 		if((cld = accept(fd, NULL, NULL)) == -1){
 			perror("accept failed");
 			continue;
-		}
+		}else 	printf("client accepted\n");
+		
 		if(recv(cld, buff, 256, 0) == -1){
 			perror("recieve failed");
 			continue;
 		}
 		else{
+			printf("recieved something\n");
 			switch(buff[0]){
 				
 				case CREATE: 	command_ptr = strtok_r(buff+1, ":", &support_ptr); 
@@ -52,10 +55,12 @@ int main(int argc, char **argv)
 									strncpy(act_room->player2->name, support_ptr, 32);
 									act_room->player2->sock_id = cld;
 									dprintf(cld, "You joined to room: %s\n", act_room->name);
-									launchRoom(&room_list, act_room);
+									launchRoom(fd, &room_list, act_room);
+									printf("room launched\n");
 								}
 								else
-									printf("Room not found\n");
+									dprintf(cld, "Room not found\n");
+									
 								break;
 								
 				case LIST:		memset(buff, 0, 256);
@@ -63,9 +68,24 @@ int main(int argc, char **argv)
 								dprintf(cld, "%s", buff);
 								break;
 								
+				case FILL_INFO:	printf("%s\n", buff+1);
+								command_ptr = strtok_r(buff+1, ":", &support_ptr); 
+								act_room = findRoom(room_list, command_ptr);
+								if(act_room){
+									BaseMessage bsm;
+									bsm.mtype = 1;
+									memset(bsm.mtext, 0, 1024);
+									strcpy(bsm.mtext, support_ptr);
+									msgsnd(act_room->rqid, &bsm, 1024 + sizeof(int), 0);
+									dprintf(cld, "Msg passed");
+								}else
+									dprintf(cld, "Room not found");
+								break;
+								
 				default: 		printf("I got unkown request: %s\n", buff);
 			}
 		}
+		printf("loop finishes here\n");
 	}
 	
 	close(fd);
