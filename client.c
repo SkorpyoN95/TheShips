@@ -80,7 +80,7 @@ int main(int argc, char **argv)
 	memset(buff, 0, 256);
 	
 	
-	//putShipsOnMap(&me);
+	putShipsOnMap(&me);
 	char packed_board[101];
 	packBoard(&me, packed_board);
 	if(sendRequest(sock_server, FILL_INFO, 3, hostname, me.name, packed_board) == -1){

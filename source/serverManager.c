@@ -8,7 +8,7 @@ int launchServer(char* ip){
 	room.sin_port = htons(3456);
 	room.sin_addr.s_addr = htonl(INADDR_ANY);
 	
-	if((room_id = socket(AF_INET, SOCK_STREAM, 0)) == -1){
+	if((room_id = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0)) == -1){
 		perror("Launching a room: socket()");
 		return -1;
 	}
@@ -114,21 +114,20 @@ void launchRoom(int fd, rNode** head, Room* room){
 						exit(1);
 					}
 					
-					if(msgrcv(s_q_id, &recieve, 1024 + sizeof(int), 1, 0) == -1){
+					if(msgrcv(r_q_id, &recieve, 1024 + sizeof(int), 1, 0) == -1){
 						perror("Recieving room msg queue id failed");
 						exit(1);
 					}
-					else 	printf("Got msg\n");
 					
 					cmd = strtok_r(recieve.mtext, ":", &sup);
 					strcpy(p1.name, cmd);
 					unpackBoard(sup, &p1);
+					sup = NULL;
 					
-					if(msgrcv(s_q_id, &recieve, 1024 + sizeof(int), 1, 0) == -1){
+					if(msgrcv(r_q_id, &recieve, 1024 + sizeof(int), 1, 0) == -1){
 						perror("Recieving room msg queue id failed");
 						exit(1);
 					}
-					else 	printf("Got msg\n");
 					
 					cmd = strtok_r(recieve.mtext, ":", &sup);
 					strcpy(p2.name, cmd);

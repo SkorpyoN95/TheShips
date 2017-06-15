@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <time.h>
 
 void putShipsOnMap(Player* pl){
 	int accept = 0;
@@ -15,9 +16,12 @@ void putShipsOnMap(Player* pl){
 	printf(	"Let's set your board!\n"
 			"To add a ship to the board: [1 - 10 #masts descending] [coord begin] [coord end even if #masts = 1]\n"
 			"To remove a ship from the board: [-1 - -10 #masts descending]\n"
+			"To get random board: [11]\n"
+			"To reset board: [-11]\n"
 			"To accept: [0]\n");
 	scanf("\n");
 	while(!accept){
+		int result;
 		fgets(input, 16, stdin);
 		sscanf(input, "%d %s %s\n", &option, begin, end);
 		if(strlen(begin) > 3 || strlen(end) > 3){
@@ -31,46 +35,53 @@ void putShipsOnMap(Player* pl){
 					else{
 						printf("You didn't assigned all ships yet.\n"); break;
 					}
-			case 1: addShip(pl, 4, 0, begin, end); break;
-			case 2: addShip(pl, 3, 4, begin, end); break;
-			case 3: addShip(pl, 3, 7, begin, end); break;
-			case 4: addShip(pl, 2, 10, begin, end); break;
-			case 5: addShip(pl, 2, 12, begin, end); break;
-			case 6: addShip(pl, 2, 14, begin, end); break;
-			case 7: addShip(pl, 1, 16, begin, end); break;
-			case 8: addShip(pl, 1, 17, begin, end); break;
-			case 9: addShip(pl, 1, 18, begin, end); break;
-			case 10: addShip(pl, 1, 19, begin, end); break;
-			case -1: removeShip(pl, 4, 0); break;
-			case -2: removeShip(pl, 3, 4); break;
-			case -3: removeShip(pl, 3, 7); break;
-			case -4: removeShip(pl, 2, 10); break;
-			case -5: removeShip(pl, 2, 12); break;
-			case -6: removeShip(pl, 2, 14); break;
-			case -7: removeShip(pl, 1, 16); break;
-			case -8: removeShip(pl, 1, 17); break;
-			case -9: removeShip(pl, 1, 18); break;
-			case -10: removeShip(pl, 1, 19); break;
+			case 1: result = addShip(pl, 4, 0, begin, end); break;
+			case 2: result = addShip(pl, 3, 4, begin, end); break;
+			case 3: result = addShip(pl, 3, 7, begin, end); break;
+			case 4: result = addShip(pl, 2, 10, begin, end); break;
+			case 5: result = addShip(pl, 2, 12, begin, end); break;
+			case 6: result = addShip(pl, 2, 14, begin, end); break;
+			case 7: result = addShip(pl, 1, 16, begin, end); break;
+			case 8: result = addShip(pl, 1, 17, begin, end); break;
+			case 9: result = addShip(pl, 1, 18, begin, end); break;
+			case 10: result = addShip(pl, 1, 19, begin, end); break;
+			case 11: result = 0; randomizeBoard(pl); break;
+			case -1: result = removeShip(pl, 4, 0); break;
+			case -2: result = removeShip(pl, 3, 4); break;
+			case -3: result = removeShip(pl, 3, 7); break;
+			case -4: result = removeShip(pl, 2, 10); break;
+			case -5: result = removeShip(pl, 2, 12); break;
+			case -6: result = removeShip(pl, 2, 14); break;
+			case -7: result = removeShip(pl, 1, 16); break;
+			case -8: result = removeShip(pl, 1, 17); break;
+			case -9: result = removeShip(pl, 1, 18); break;
+			case -10: result = removeShip(pl, 1, 19); break;
+			case -11: result = 0; resetBoard(pl); break;
 			default: printf("Unrecognised command\n"); break;
+		}
+		switch(result){
+			case 0: printf("Done\n"); break;
+			case 1: printf("Invalid coordinates\n"); break;
+			case 2: printf("Invalid ship's shape\n"); break;
+			case 3: printf("Invalid ship's length\n"); break;
+			case 4: printf("Actually that ship is on the board\n"); break;
+			case 5: printf("Area is occupied\n"); break;
+			case 6: printf("Collision detected\n"); break;
+			case -1: printf("There is no ship there\n"); break;
+			default: printf("Dunno what happend\n");
 		}
 		showBoard(pl->board);
 	}
 }
 
-void addShip(Player* pl, int masts, int number, char* begin, char* end){
+int addShip(Player* pl, int masts, int number, char* begin, char* end){
 	int x1, y1, x2, y2;
 	x1 = tolower(begin[0]) - 'a'; y1 = atoi(begin+1) - 1;
 	x2 = tolower(end[0]) - 'a'; y2 = atoi(end+1) - 1;
 	
-	if(x1 < 0 || x1 > 9 || x2 < 0 || x2 > 9 || y1 < 0 || y1 > 9 || y2 < 0 || y2 > 9){
-		printf("Invalid coordinates\n");
-		return;
-	}
+	if(x1 < 0 || x1 > 9 || x2 < 0 || x2 > 9 || y1 < 0 || y1 > 9 || y2 < 0 || y2 > 9) return 1;
 	
-	if(x1 != x2 && y1 != y2){
-		printf("Invalid ship's shape\n");
-		return;
-	}
+	if(x1 != x2 && y1 != y2) return 2;
 	
 	if(x1 > x2){
 		int tmp = x1;
@@ -84,45 +95,30 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 		y2 = tmp;
 	}
 	
-	if((x2 - x1) != (masts-1) && (y2 - y1) != (masts-1)){
-		printf("Invalid ship's length\n");
-		return;
-	}
+	if((x2 - x1) != (masts-1) && (y2 - y1) != (masts-1)) return 3;
 	
 	if(x1 == x2){
 		for(int i = y1; i <= y2; ++i){
-			if(pl->ships[number + i - y1] != -1){
-				printf("Actually that ship is on the board\n"); return;
-			}
-			if(pl->board[x1][i] != SEA){
-				printf("%c%d is occupied\n", x1 + 65, i + 1); return;
-			}
+			if(pl->ships[number + i - y1] != -1) return 4;
+			if(pl->board[x1][i] != SEA) return 5;
 			if(	(x1 > 0 && pl->board[x1 - 1][i] != SEA) ||
-				(x1 < 9 && pl->board[x1 + 1][i] != SEA)){
-					printf("Collision detected\n"); return;
-			}
+				(x1 < 9 && pl->board[x1 + 1][i] != SEA))
+				return 6;
 		}
 		if(		(y1 > 0 && ((x1 > 0 && pl->board[x1 - 1][y1 - 1] != SEA) || (pl->board[x1][y1 - 1] != SEA) || (x1 < 9 && pl->board[x1 + 1][y1 - 1] != SEA)))
-			||	(y2 < 9 && ((x1 > 0 && pl->board[x1 - 1][y2 + 1] != SEA) || (pl->board[x1][y2 + 1] != SEA) || (x1 < 9 && pl->board[x1 + 1][y2 + 1] != SEA)))){
-			printf("Collision detected\n"); return;
-		}
+			||	(y2 < 9 && ((x1 > 0 && pl->board[x1 - 1][y2 + 1] != SEA) || (pl->board[x1][y2 + 1] != SEA) || (x1 < 9 && pl->board[x1 + 1][y2 + 1] != SEA))))
+			return 6;
 	}else{
 		for(int i = x1; i <= x2; ++i){
-			if(pl->ships[number + i - x1] != -1){
-				printf("Actually that ship is on board\n"); return;
-			}
-			if(pl->board[i][y1] != SEA){
-				printf("%c%d is occupied\n", i + 65, y1 + 1); return;
-			}
+			if(pl->ships[number + i - x1] != -1) return 4;
+			if(pl->board[i][y1] != SEA) return 5;
 			if(	(y1 > 0 && pl->board[i][y1 - 1] != SEA) ||
-				(y1 < 9 && pl->board[i][y1 + 1] != SEA)){
-					printf("Collision detected\n"); return;
-			}
+				(y1 < 9 && pl->board[i][y1 + 1] != SEA))
+				return 6;
 		}
 		if(		(x1 > 0 && ((y1 > 0 && pl->board[x1 - 1][y1 - 1] != SEA) || (pl->board[x1 - 1][y1] != SEA) || (y1 < 9 && pl->board[x1 - 1][y1 + 1] != SEA)))
-			||	(x2 < 9 && ((y1 > 0 && pl->board[x2 + 1][y1 - 1] != SEA) || (pl->board[x2 - 1][y1] != SEA) || (y1 < 9 && pl->board[x1 + 1][y1 + 1] != SEA)))){
-			printf("Collision detected\n"); return;
-		}
+			||	(x2 < 9 && ((y1 > 0 && pl->board[x2 + 1][y1 - 1] != SEA) || (pl->board[x2 - 1][y1] != SEA) || (y1 < 9 && pl->board[x1 + 1][y1 + 1] != SEA))))
+			return 6;
 	}
 	
 	if(x1 == x2)
@@ -135,21 +131,160 @@ void addShip(Player* pl, int masts, int number, char* begin, char* end){
 			pl->board[i][y1] = SHIP;
 			pl->ships[number + i - x1] = 10*i + y1;
 		}
-	return;
+	return 0;
 }
 
-void removeShip(Player* pl, int masts, int number){
+int removeShip(Player* pl, int masts, int number){
 	for(int i = 0; i < masts; ++i)
-		if(pl->ships[number+i] == -1){
-			printf("There is no ship there\n");
-			return;
-		}
+		if(pl->ships[number+i] == -1) return -1;
 			
 	for(int i = 0; i < masts; ++i){
 		pl->board[pl->ships[number+i]/10][pl->ships[number+i]%10] = SEA;
 		pl->ships[number+i] = -1;
 	}
 		
+	return 0;
+}
+
+void randomizeBoard(Player* pl){
+	srand(time(NULL));
+	while(pl->ships[0] == -1){
+		char begin[4] = {0,0,0,0}, end[4] = {0,0,0,0};
+		int x, y;
+		if(rand()%2){
+			x = 'a' + rand()%10;
+			y = 1 + rand()%7;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x, y+3);
+		}else{
+			x = 'a' + rand()%7;
+			y = 1 + rand()%10;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x+3, y);
+		}
+		addShip(pl, 4, 0, begin, end);
+	}
+	while(pl->ships[4] == -1){
+		char begin[4] = {0,0,0,0}, end[4] = {0,0,0,0};
+		int x, y;
+		if(rand()%2){
+			x = 'a' + rand()%10;
+			y = 1 + rand()%8;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x, y+2);
+		}else{
+			x = 'a' + rand()%8;
+			y = 1 + rand()%10;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x+2, y);
+		}
+		addShip(pl, 3, 4, begin, end);
+	}
+	while(pl->ships[7] == -1){
+		char begin[4] = {0,0,0,0}, end[4] = {0,0,0,0};
+		int x, y;
+		if(rand()%2){
+			x = 'a' + rand()%10;
+			y = 1 + rand()%8;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x, y+2);
+		}else{
+			x = 'a' + rand()%8;
+			y = 1 + rand()%10;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x+2, y);
+		}
+		addShip(pl, 3, 7, begin, end);
+	}
+	while(pl->ships[10] == -1){
+		char begin[4] = {0,0,0,0}, end[4] = {0,0,0,0};
+		int x, y;
+		if(rand()%2){
+			x = 'a' + rand()%10;
+			y = 1 + rand()%9;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x, y+1);
+		}else{
+			x = 'a' + rand()%9;
+			y = 1 + rand()%10;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x+1, y);
+		}
+		addShip(pl, 2, 10, begin, end);
+	}
+	while(pl->ships[12] == -1){
+		char begin[4] = {0,0,0,0}, end[4] = {0,0,0,0};
+		int x, y;
+		if(rand()%2){
+			x = 'a' + rand()%10;
+			y = 1 + rand()%9;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x, y+1);
+		}else{
+			x = 'a' + rand()%9;
+			y = 1 + rand()%10;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x+1, y);
+		}
+		addShip(pl, 2, 12, begin, end);
+	}
+	while(pl->ships[14] == -1){
+		char begin[4] = {0,0,0,0}, end[4] = {0,0,0,0};
+		int x, y;
+		if(rand()%2){
+			x = 'a' + rand()%10;
+			y = 1 + rand()%9;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x, y+1);
+		}else{
+			x = 'a' + rand()%9;
+			y = 1 + rand()%10;
+			snprintf(begin, 4, "%c%d", x, y);
+			snprintf(end, 4, "%c%d", x+1, y);
+		}
+		addShip(pl, 2, 14, begin, end);
+	}
+	while(pl->ships[16] == -1){
+		char begin[4] = {0,0,0,0};
+		int x, y;
+		x = 'a' + rand()%10;
+		y = 1 + rand()%10;
+		snprintf(begin, 4, "%c%d", x, y);
+		addShip(pl, 1, 16, begin, begin);
+	}
+	while(pl->ships[17] == -1){
+		char begin[4] = {0,0,0,0};
+		int x, y;
+		x = 'a' + rand()%10;
+		y = 1 + rand()%10;
+		snprintf(begin, 4, "%c%d", x, y);
+		addShip(pl, 1, 17, begin, begin);
+	}
+	while(pl->ships[18] == -1){
+		char begin[4] = {0,0,0,0};
+		int x, y;
+		x = 'a' + rand()%10;
+		y = 1 + rand()%10;
+		snprintf(begin, 4, "%c%d", x, y);
+		addShip(pl, 1, 18, begin, begin);
+	}
+	while(pl->ships[19] == -1){
+		char begin[4] = {0,0,0,0};
+		int x, y;
+		x = 'a' + rand()%10;
+		y = 1 + rand()%10;
+		snprintf(begin, 4, "%c%d", x, y);
+		addShip(pl, 1, 19, begin, begin);
+	}
+	return;
+}
+
+void resetBoard(Player* pl){
+	for(int i = 0; i < 10; ++i)
+		for(int j = 0; j < 10; ++j)
+			pl->board[i][j] = SEA;
+			
+	memset(pl->ships, -1, 20 * sizeof(int));
 	return;
 }
 

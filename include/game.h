@@ -18,8 +18,10 @@ typedef struct{
 } Player;
 
 void putShipsOnMap(Player*);
-void addShip(Player*, int, int, char*, char*);
-void removeShip(Player*, int, int);
+int addShip(Player*, int, int, char*, char*);
+int removeShip(Player*, int, int);
+void randomizeBoard(Player*);
+void resetBoard(Player*);
 void showBoard(fldState[10][10]);
 int countPlayerHP(Player*);
 void packBoard(Player*,char*);

@@ -14,6 +14,8 @@
 #include <sys/msg.h>
 #include "room.h"
 
+#define MAXEVENTS 20
+
 int s_q_id;
 
 typedef enum request_type { CREATE = 'c', JOIN = 'j', LIST = 'l', START = 's', FILL_INFO = 'i' } reqType;
