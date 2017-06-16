@@ -311,21 +311,25 @@ int countPlayerHP(Player* pl){
 	return counter;
 }
 
-void packBoard(Player* pl, char* where){
+void packBoard(Player* pl, char* where, char* ships){
 	for(int i = 0; i < 10; ++i)
 		for(int j = 0; j < 10; ++j)
 			where[10*i + j] = (char)(pl->board[i][j]);
 			
 	where[100] = '\0';
-	printf("%s\n", where);
+	for(int i = 0; i < 20; ++i)
+		ships[i] = pl->ships[i];
+	ships[20] = '\0';
 	return;
 }
 
-void unpackBoard(char* what, Player* pl){
+void unpackBoard(char* what, char* ships, Player* pl){
 	for(int i = 0; i < 10; ++i)
 		for(int j = 0; j < 10; ++j)
 			pl->board[i][j] = (fldState)what[10*i + j];
 			
+	for(int i = 0; i < 20; ++i)
+		pl->ships[i] = ships[i];
 	return;
 }
 

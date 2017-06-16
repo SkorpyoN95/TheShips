@@ -37,6 +37,7 @@ typedef struct {
 int launchServer(char*);
 int joinServer(char*);
 int sendRequest(int, reqType, int, ...);
+int getResponse(int, char*);
 void launchRoom(int, rNode**, Room*);
 
 #endif

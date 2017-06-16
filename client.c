@@ -64,8 +64,8 @@ int main(int argc, char **argv)
 	}while(option == LIST);
 	
 	printf("Wait untill everybody is connected...\n");
-	if(recv(sock_server, buff, 256, 0) == -1){
-		perror("recieve failed");
+	if(getResponse(sock_server, buff) == -1){
+		printf("getResponse failed");
 		exit(1);
 	}
 	
@@ -81,14 +81,15 @@ int main(int argc, char **argv)
 	
 	putShipsOnMap(&me);
 	char packed_board[101];
-	packBoard(&me, packed_board);
-	if(sendRequest(sock_server, FILL_INFO, 3, hostname, me.name, packed_board) == -1){
+	char ships[21];
+	packBoard(&me, packed_board, ships);
+	if(sendRequest(sock_server, FILL_INFO, 4, hostname, me.name, packed_board, ships) == -1){
 		printf("Nothing has been sent.\n");
 		exit(1);
 	}
 	printf("Waiting for your opponent...\n");
-	if(recv(sock_server, buff, 256, 0) == -1){
-		perror("recieve failed");
+	if(getResponse(sock_server, buff) == -1){
+		printf("getResponse failed");
 		exit(1);
 	}
 	
@@ -106,32 +107,35 @@ int main(int argc, char **argv)
 		showBoard(me.board);
 		printf("\n");
 		showBoard(enemy.board);
-		if(recv(sock_server, buff, 256, 0) == -1){
-			perror("recieve failed");
+		if(getResponse(sock_server, buff) == -1){
+			printf("getResponse failed");
 			exit(1);
 		}
 		
-		switch(buff[0]){
-			case TURN: 		break;
-			case GAME_OVER:	run = 0; printf("%s won! Congratulations!\n", buff+1); continue;
-			case RESULT:	switch(buff[1]){
-								case SEA:	printf("Oponnent missed!\n");
-											sscanf(buff + 3, "%d:%d", &x, &y);
-											me.board[x][y] = SEA;
-											continue;
-								case SHIP:	printf("Opponent hit you!\n");
-											sscanf(buff + 3, "%d:%d", &x, &y);
-											me.board[x][y] = DAMAGED;
-											continue;
-								case WRECK:	printf("Opoonent hit you and sank you!\n");
-											for(int i = 0; i < buff[2] - '0'; ++i){
-												sscanf(buff + 4 + 4*i, "%d:%d", &x, &y);
-												enemy.board[x][y] = WRECK;
-											}
-											continue;
-								default:	printf("Opponent just wasted his move\n"); continue;
-							}
-			default:		continue;
+		if(buff[0] != TURN){
+			if(buff[0] == GAME_OVER){
+				run = 0; printf("%s won! Congratulations!\n", buff+1);
+			}
+			if(buff[0] == RESULT){
+				switch(buff[1]){
+					case SEA:	printf("Oponnent missed!\n");
+								sscanf(buff + 3, "%d:%d", &x, &y);
+								me.board[x][y] = SEA;
+								break;
+					case SHIP:	printf("Opponent hit you!\n");
+								sscanf(buff + 3, "%d:%d", &x, &y);
+								me.board[x][y] = DAMAGED;
+								break;
+					case WRECK:	printf("Opoonent hit you and sank you!\n");
+								for(int i = 0; i < buff[2] - '0'; ++i){
+									sscanf(buff + 4 + 4*i, "%d:%d", &x, &y);
+									me.board[x][y] = WRECK;
+								}
+								break;
+					default:	printf("Opponent just wasted his move\n"); break;
+				}
+			}
+			continue;
 		}
 		
 		char coords[] = {0,0,0,0};
@@ -150,8 +154,8 @@ int main(int argc, char **argv)
 		}
 		
 		memset(buff, 0, 256);
-		if(recv(sock_server, buff, 256, 0) == -1){
-			perror("recieve failed");
+		if(getResponse(sock_server, buff) == -1){
+			printf("getResponse failed");
 			exit(1);
 		}
 		

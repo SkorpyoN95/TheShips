@@ -24,8 +24,8 @@ void randomizeBoard(Player*);
 void resetBoard(Player*);
 void showBoard(fldState[10][10]);
 int countPlayerHP(Player*);
-void packBoard(Player*,char*);
-void unpackBoard(char*, Player*);
+void packBoard(Player*,char*, char*);
+void unpackBoard(char*, char*, Player*);
 int isShipSinked(Player*, int);
 
 #endif

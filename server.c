@@ -57,8 +57,8 @@ int main(int argc, char **argv)
 			}else{
 				memset(buff, 0, 256);
 				support_ptr = NULL;
-				if(recv(events[i].data.fd, buff, 256, MSG_DONTWAIT) == -1){
-					perror("recieve failed");
+				if(getResponse(events[i].data.fd, buff) == -1){
+					printf("recieve failed\n");
 					continue;
 				}
 				else{
@@ -86,7 +86,6 @@ int main(int argc, char **argv)
 											act_room->player2->sock_id = cld;
 											dprintf(cld, "You joined to room: %s\n", act_room->name);
 											launchRoom(fd, &room_list, act_room);
-											printf("room launched\n");
 										}
 										else
 											dprintf(cld, "Room not found\n");
@@ -106,7 +105,7 @@ int main(int argc, char **argv)
 											memset(bsm.mtext, 0, 1024);
 											strcpy(bsm.mtext, support_ptr);
 											if(msgsnd(act_room->rqid, &bsm, 1024 + sizeof(int), 0) == -1)	perror("msgsnd");
-											dprintf(cld, "%c", START);
+											sendRequest(cld, START, 0);
 										}else
 											dprintf(cld, "-");
 											
