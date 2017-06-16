@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <ctype.h>
 #include "serverManager.h"
 #include "room.h"
 
@@ -67,15 +68,13 @@ int main(int argc, char **argv)
 		perror("recieve failed");
 		exit(1);
 	}
-	else
-		printf("Gotcha!\n");
 	
 	if(buff[0] != START){
 		printf("Unexpected request type, program shuts down.\n");
 		exit(1);
 	}
 	else
-		printf("Lets play the game\n");
+		system("clear");
 	
 	memset(buff, 0, 256);
 	
@@ -92,14 +91,92 @@ int main(int argc, char **argv)
 		perror("recieve failed");
 		exit(1);
 	}
-	else
-		printf("Gotcha!\n");
-		
-	printf("%s", buff);
-	memset(buff, 0, 256);
 	
-	//while(1){
-	//}
+	if(buff[0] != START){
+		printf("Unexpected request type, program shuts down.\n");
+		exit(1);
+	}
+		
+	int run = 1;
+	
+	while(run){
+		int x, y;
+		memset(buff, 0, 256);
+		system("clear");
+		showBoard(me.board);
+		printf("\n");
+		showBoard(enemy.board);
+		if(recv(sock_server, buff, 256, 0) == -1){
+			perror("recieve failed");
+			exit(1);
+		}
+		
+		switch(buff[0]){
+			case TURN: 		break;
+			case GAME_OVER:	run = 0; printf("%s won! Congratulations!\n", buff+1); continue;
+			case RESULT:	switch(buff[1]){
+								case SEA:	printf("Oponnent missed!\n");
+											sscanf(buff + 3, "%d:%d", &x, &y);
+											me.board[x][y] = SEA;
+											continue;
+								case SHIP:	printf("Opponent hit you!\n");
+											sscanf(buff + 3, "%d:%d", &x, &y);
+											me.board[x][y] = DAMAGED;
+											continue;
+								case WRECK:	printf("Opoonent hit you and sank you!\n");
+											for(int i = 0; i < buff[2] - '0'; ++i){
+												sscanf(buff + 4 + 4*i, "%d:%d", &x, &y);
+												enemy.board[x][y] = WRECK;
+											}
+											continue;
+								default:	printf("Opponent just wasted his move\n"); continue;
+							}
+			default:		continue;
+		}
+		
+		char coords[] = {0,0,0,0};
+		do{
+			system("clear");
+			showBoard(me.board);
+			printf("\n");
+			showBoard(enemy.board);
+			printf("Put valid coordinates you want to attack:\n");
+			scanf("%s", coords);
+		}while(tolower(coords[0]) < 'a' || tolower(coords[0]) > 'j' || atoi(coords+1) < 1 || atoi(coords+1) > 10 || enemy.board[tolower(coords[0]) - 'a'][atoi(coords+1) - 1] != 0);
+		
+		if(sendRequest(sock_server, MOVE, 2, hostname, coords) == -1){
+			printf("Nothing has been sent.\n");
+			exit(1);
+		}
+		
+		memset(buff, 0, 256);
+		if(recv(sock_server, buff, 256, 0) == -1){
+			perror("recieve failed");
+			exit(1);
+		}
+		
+		if(buff[0] != RESULT){
+			printf("Unexpected request type.\n");
+			exit(1);
+		}
+		switch(buff[1]){
+			case SEA:	printf("Miss!\n");
+						sscanf(buff + 3, "%d:%d", &x, &y);
+						enemy.board[x][y] = SEA;
+						break;
+			case SHIP:	printf("Hit!\n");
+						sscanf(buff + 3, "%d:%d", &x, &y);
+						enemy.board[x][y] = DAMAGED;
+						break;
+			case WRECK:	printf("Hit and sink!\n");
+						for(int i = 0; i < buff[2] - '0'; ++i){
+							sscanf(buff + 4 + 4*i, "%d:%d", &x, &y);
+							enemy.board[x][y] = WRECK;
+						}
+						break;
+			default:	printf("You just wasted your move\n"); break;
+		}
+	}
 	
 	close(sock_server);
 	

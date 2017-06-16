@@ -26,5 +26,6 @@ void showBoard(fldState[10][10]);
 int countPlayerHP(Player*);
 void packBoard(Player*,char*);
 void unpackBoard(char*, Player*);
+int isShipSinked(Player*, int);
 
 #endif

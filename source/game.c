@@ -306,7 +306,7 @@ void showBoard(fldState brd[10][10]){
 int countPlayerHP(Player* pl){
 	int counter = 0;
 	for(int i = 0; i < 20; ++i)
-		if(pl->ships[i] != -1)	counter++;
+		if(pl->board[pl->ships[i]/10][pl->ships[i]%10] == SHIP)	counter++;
 		
 	return counter;
 }
@@ -327,4 +327,26 @@ void unpackBoard(char* what, Player* pl){
 			pl->board[i][j] = (fldState)what[10*i + j];
 			
 	return;
+}
+
+int isShipSinked(Player* pl, int n){
+	int offset = 0, masts = 0, where = 0;
+	switch(n){
+		case 1: offset = 0; masts = 4; break;
+		case 2: offset = 4; masts = 3; break;
+		case 3: offset = 7; masts = 3; break;
+		case 4: offset = 10; masts = 2; break;
+		case 5: offset = 12; masts = 2; break;
+		case 6: offset = 14; masts = 2; break;
+		case 7: offset = 16; masts = 1; break;
+		case 8: offset = 17; masts = 1; break;
+		case 9: offset = 18; masts = 1; break;
+		case 10: offset = 19; masts = 1; break;
+		default: return 0;
+	}
+	for(int i = offset, end = offset + masts; i < end; ++i){
+		where = pl->ships[i];
+		if(pl->board[where/10][where%10] != DAMAGED) return 0;
+	}
+	return 1;
 }

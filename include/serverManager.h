@@ -18,7 +18,9 @@
 
 int s_q_id;
 
-typedef enum request_type { CREATE = 'c', JOIN = 'j', LIST = 'l', START = 's', FILL_INFO = 'i' } reqType;
+typedef enum request_type { CREATE = 'c', JOIN = 'j', LIST = 'l', START = 's',
+							FILL_INFO = 'i', TURN = 't', MOVE = 'm', GAME_OVER = 'o',
+							RESULT = 'r' } reqType;
 
 typedef struct {
   long mtype;

@@ -106,10 +106,22 @@ int main(int argc, char **argv)
 											memset(bsm.mtext, 0, 1024);
 											strcpy(bsm.mtext, support_ptr);
 											if(msgsnd(act_room->rqid, &bsm, 1024 + sizeof(int), 0) == -1)	perror("msgsnd");
-											dprintf(cld, "Msg passed\n");
+											dprintf(cld, "%c", START);
 										}else
-											dprintf(cld, "Room not found\n");
+											dprintf(cld, "-");
 											
+										break;
+										
+						case MOVE:		command_ptr = strtok_r(buff+1, ":", &support_ptr); 
+										act_room = findRoom(room_list, command_ptr);
+										if(act_room){
+											BaseMessage bsm;
+											bsm.mtype = 1;
+											memset(bsm.mtext, 0, 1024);
+											strcpy(bsm.mtext, support_ptr);
+											if(msgsnd(act_room->rqid, &bsm, 1024 + sizeof(int), 0) == -1)
+												perror("msgsnd");
+										}
 										break;
 										
 						default: 		printf("I got unknown request: %s\n", buff);

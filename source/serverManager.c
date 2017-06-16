@@ -1,4 +1,5 @@
 #include "serverManager.h"
+#include <ctype.h>
 
 int launchServer(char* ip){
 	int room_id, addr_id;
@@ -102,7 +103,7 @@ void launchRoom(int fd, rNode** head, Room* room){
 		case -1:	perror("Creating new process for room");
 					deleteRoom(head, room);
 					break;
-		case 0:		close(fd);
+		case 0:		//close(fd);
 					if((r_q_id = msgget(IPC_PRIVATE, 0666)) == -1){
 						perror("Creating room msg queue");
 						exit(1);
@@ -121,6 +122,13 @@ void launchRoom(int fd, rNode** head, Room* room){
 					
 					cmd = strtok_r(recieve.mtext, ":", &sup);
 					strcpy(p1.name, cmd);
+					
+					int sock_cmp = strcmp(p1.name, room->player1->name);
+					if(!sock_cmp)
+						p1.sock_id = room->player1->sock_id;
+					else
+						p1.sock_id = room->player2->sock_id;
+						
 					unpackBoard(sup, &p1);
 					sup = NULL;
 					
@@ -131,10 +139,78 @@ void launchRoom(int fd, rNode** head, Room* room){
 					
 					cmd = strtok_r(recieve.mtext, ":", &sup);
 					strcpy(p2.name, cmd);
+					
+					if(!sock_cmp)
+						p2.sock_id = room->player2->sock_id;
+					else
+						p2.sock_id = room->player1->sock_id;
+						
 					unpackBoard(sup, &p2);
 					
-					showBoard(p1.board);
-					showBoard(p2.board);
+					//showBoard(p1.board);
+					//showBoard(p2.board);
+					
+					int run = 1;
+					Player* turn = &p1, * turn_over = &p2, * tmp = NULL;
+					
+					while(run){
+						sendRequest(turn->sock_id, TURN, 0);
+						
+						if(msgrcv(r_q_id, &recieve, 1024 + sizeof(int), 1, 0) == -1){
+							perror("Recieving room msg queue id failed");
+							exit(1);
+						}
+						int x = tolower(recieve.mtext[0]) - 'a';
+						int y = atoi(recieve.mtext + 1) - 1;
+						if(turn_over->board[x][y] == SHIP){
+							turn_over->board[x][y] = DAMAGED;
+							if(countPlayerHP(turn_over) == 0){
+								sendRequest(turn->sock_id, GAME_OVER, 1, turn->name);
+								sendRequest(turn_over->sock_id, GAME_OVER, 1, turn->name);
+								run = 0;
+								continue;
+							}
+							int index = 10 * x + y, i = 0, number = 1;
+							for(; i < 20; ++i)	if(turn_over->ships[i] == index) break;
+							if(i > 15) number = i%10 + 1;
+							else if(i > 9) number = (i - 2) / 2;
+								 else if(i > 3) number = (i + 2) / 3;
+									  else number = 1;
+							if(isShipSinked(turn_over, number)){
+								char result[16] = {0};
+								if(i < 4)	snprintf(result, 16, "%c4:%d:%d:%d:%d:%d:%d:%d:%d", WRECK, turn_over->ships[0]/10, turn_over->ships[0]%10,
+															turn_over->ships[1]/10, turn_over->ships[1]%10, turn_over->ships[2]/10, turn_over->ships[2]%10,
+															turn_over->ships[3]/10, turn_over->ships[3]%10);
+								if(i == 4 || i == 5 || i == 6)	snprintf(result, 16, "%c3:%d:%d:%d:%d:%d:%d", WRECK,
+															turn_over->ships[4]/10, turn_over->ships[4]%10, turn_over->ships[5]/10, turn_over->ships[5]%10,
+															turn_over->ships[6]/10, turn_over->ships[6]%10);
+								if(i == 7 || i == 8 || i == 9)	snprintf(result, 16, "%c3:%d:%d:%d:%d:%d:%d", WRECK,
+															turn_over->ships[7]/10, turn_over->ships[7]%10, turn_over->ships[8]/10, turn_over->ships[8]%10,
+															turn_over->ships[9]/10, turn_over->ships[9]%10);
+								if(i == 10 || i == 11)	snprintf(result, 16, "%c2:%d:%d:%d:%d", WRECK, turn_over->ships[10]/10, turn_over->ships[10]%10,
+															turn_over->ships[11]/10, turn_over->ships[11]%10);
+								if(i == 12 || i == 13)	snprintf(result, 16, "%c2:%d:%d:%d:%d", WRECK, turn_over->ships[12]/10, turn_over->ships[12]%10,
+															turn_over->ships[13]/10, turn_over->ships[13]%10);
+								if(i == 14 || i == 15)	snprintf(result, 16, "%c2:%d:%d:%d:%d", WRECK, turn_over->ships[14]/10, turn_over->ships[14]%10,
+															turn_over->ships[15]/10, turn_over->ships[15]%10);
+								if(i > 15)	snprintf(result, 16, "%c1:%d:%d", WRECK, x, y);
+								sendRequest(turn->sock_id, RESULT, 1, result);
+								sendRequest(turn_over->sock_id, RESULT, 1, result);
+							}else{
+								char result[16] = {0};
+								snprintf(result, 16, "%c:%d:%d", SHIP, x, y);
+								sendRequest(turn->sock_id, RESULT, 1, result);
+								sendRequest(turn_over->sock_id, RESULT, 1, result);
+							}
+						}else{
+							char result[16] = {0};
+							snprintf(result, 16, "%c:%d:%d", SEA, x, y);
+							sendRequest(turn->sock_id, RESULT, 1, result);
+							tmp = turn_over;
+							turn_over = turn;
+							turn = tmp;
+						}
+					}
 					
 					exit(0);
 					break;
