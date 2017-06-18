@@ -107,25 +107,24 @@ void launchRoom(int fd, rNode** head, Room* room){
 	int r_q_id;
 	char* cmd, * sup;
 	BaseMessage send, recieve;
-	//PlayerDataMessage pdm_rcv;
 	switch(room_pid = fork()){
 		case -1:	perror("Creating new process for room");
 					deleteRoom(head, room);
 					break;
 		case 0:		if((r_q_id = msgget(IPC_PRIVATE, 0666)) == -1){
 						perror("Creating room msg queue");
-						exit(1);
+						exit(3);
 					}
 					send.mtype = 999;
 					send.mid = r_q_id;
 					if(msgsnd(s_q_id, &send, 1024 + sizeof(int), 0) == -1){
 						perror("Sending room msg queue id failed");
-						exit(1);
+						exit(3);
 					}
 					
 					if(msgrcv(r_q_id, &recieve, 1024 + sizeof(int), 1, 0) == -1){
 						perror("Recieving room msg queue id failed");
-						exit(1);
+						exit(3);
 					}
 					
 					cmd = strtok_r(recieve.mtext, ":", &sup);
@@ -143,7 +142,7 @@ void launchRoom(int fd, rNode** head, Room* room){
 					
 					if(msgrcv(r_q_id, &recieve, 1024 + sizeof(int), 1, 0) == -1){
 						perror("Recieving room msg queue id failed");
-						exit(1);
+						exit(3);
 					}
 					
 					cmd = strtok_r(recieve.mtext, ":", &sup);
@@ -166,7 +165,7 @@ void launchRoom(int fd, rNode** head, Room* room){
 						
 						if(msgrcv(r_q_id, &recieve, 1024 + sizeof(int), 1, 0) == -1){
 							perror("Recieving room msg queue id failed");
-							exit(1);
+							exit(3);
 						}
 						
 						int x = tolower(recieve.mtext[0]) - 'a';
@@ -223,7 +222,10 @@ void launchRoom(int fd, rNode** head, Room* room){
 						}
 					}
 					
-					exit(0);
+					msgctl(r_q_id, IPC_RMID, NULL);
+					if(!strcmp(turn->name, room->player1->name))	exit(1);
+					else 											exit(2);
+					
 					break;
 		default:	room->pid = room_pid;
 					if(msgrcv(s_q_id, &recieve, 1024 + sizeof(int), 999, 0) == -1)	perror("Recieving room msg queue id failed");

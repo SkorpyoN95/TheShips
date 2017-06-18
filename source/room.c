@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+
 Room* addRoom(rNode** head, char* name){
 	rNode* tmp = *head;
 	while(tmp)	tmp = tmp->next;
@@ -66,4 +67,14 @@ void listFreeRooms(rNode* head, char* buff){
 		snprintf(buff, 256, "There is no room available\n");
 		return;
 	}
+}
+
+void addLog(hLog** head, char* log){
+	hLog* tmp = *head;
+	while(tmp)	tmp = tmp->next;
+	tmp = (hLog*)malloc(sizeof(hLog));
+	strncpy(tmp->log, log, 80);
+	tmp->next = NULL;
+	if(*head == NULL)	*head = tmp;
+	return;
 }

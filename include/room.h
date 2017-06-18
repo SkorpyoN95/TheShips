@@ -3,6 +3,7 @@
 
 #include "game.h"
 #include <unistd.h>
+#include <signal.h>
 
 typedef struct single_room{
 	char name[32];
@@ -17,9 +18,15 @@ typedef struct room_node{
 	Room* room;
 } rNode;
 
+typedef struct hist_log{
+	struct hist_log* next;
+	char log[80];
+} hLog;
+
 Room* addRoom(rNode**, char*);
 Room* findRoom(rNode*, char*);
 int deleteRoom(rNode**, Room*);
 void listFreeRooms(rNode*, char*);
+void addLog(hLog**, char*);
 
 #endif

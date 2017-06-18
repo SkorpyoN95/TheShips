@@ -28,25 +28,27 @@ int main(int argc, char **argv)
 	printf("Put host IP:\n");
 	scanf("%s", (char*)ip);
 	getchar();
-	if((sock_server = joinServer(ip)) == -1) 	printf("Joining server %s failed.\n", ip);
-	else								printf("Joined server, IP: %s\n", ip);
+	if((sock_server = joinServer(ip)) == -1) {
+		printf("Joining server %s failed.\n", ip);
+		exit(1);
+	}else printf("Joined server, IP: %s\n", ip);
 	
-	printf("Who are you?\n");
+	printf("Who are you (spaces are not allowed)?\n");
 	scanf("%s", (char*)me.name);
 	getchar();
 	
 	do{
-		printf("Wanna (c)reate new room, (j)oin to one or (l)ist some?\n");
+		printf("Wanna (c)reate new room, (j)oin to one or (l)ist some? You can check (h)istory of last 3 games as well.\n");
 		scanf("\n\t\r%c", &option);
 		getchar();
 		
-		if(option == LIST){
+		if(option == LIST || option == HISTORY){
 			if(sendRequest(sock_server, option, 0)){
 				printf("Nothing has been sent.\n");
 				exit(1);
 			}
 		}else{
-			printf("Enter host's name:\n");
+			printf("Enter room's name (spaces are not allowed):\n");
 			scanf("%s", (char*)hostname);
 			getchar();
 			if(sendRequest(sock_server, option, 2, hostname, me.name)){
@@ -61,7 +63,7 @@ int main(int argc, char **argv)
 		}
 		printf("%s", buff);
 		memset(buff, 0, 256);
-	}while(option == LIST);
+	}while(option == LIST || option == HISTORY);
 	
 	printf("Wait untill everybody is connected...\n");
 	if(getResponse(sock_server, buff) == -1){

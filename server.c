@@ -4,13 +4,17 @@
 #include "room.h"
 #include "game.h"
 
+rNode* room_list = NULL;
+hLog* history = NULL;
+
+void closeRoom(int, siginfo_t*, void*);
+
 int main(int argc, char **argv)
 {
 	char buff[256];
 	char ip[16];
 	int fd, cld, epoll_fd;
 	struct epoll_event event, * events;
-	rNode* room_list = NULL;
 	Room* act_room;
 	char* command_ptr, * support_ptr;
 	key_t server_key = ftok("./", 'P');
@@ -36,10 +40,18 @@ int main(int argc, char **argv)
 		perror("epoll malloc");
 		exit(1);
 	}
+	
+	struct sigaction sa;
+	sa.sa_sigaction = closeRoom;
+	sa.sa_flags = SA_SIGINFO;
+	sigemptyset(&sa.sa_mask);
+	sigaddset(&sa.sa_mask, SIGCHLD);
+	sigaction(SIGCHLD, &sa, NULL);
+	
 	printf("Server launched. IP: %s\n", ip);
 	while(1){
 		int n;
-		if((n = epoll_wait(epoll_fd, events, MAXEVENTS, -1)) == -1){
+		if((n = epoll_pwait(epoll_fd, events, MAXEVENTS, -1, &sa.sa_mask)) == -1){
 			perror("epoll wait");
 			break;
 		}
@@ -86,6 +98,7 @@ int main(int argc, char **argv)
 											act_room->player2->sock_id = cld;
 											dprintf(cld, "You joined to room: %s\n", act_room->name);
 											launchRoom(fd, &room_list, act_room);
+											printf("Room launched\n");
 										}
 										else
 											dprintf(cld, "Room not found\n");
@@ -95,6 +108,16 @@ int main(int argc, char **argv)
 						case LIST:		memset(buff, 0, 256);
 										listFreeRooms(room_list, buff);
 										dprintf(cld, "%s", buff);
+										break;
+										
+						case HISTORY:	memset(buff, 0, 256);
+										hLog* tmp = history;
+										while(tmp){
+											sprintf(buff+strlen(buff), "%s\n", tmp->log);
+											tmp = tmp->next;
+										}
+										if(!history) dprintf(cld, "No game has been played yet\n");
+										else		 dprintf(cld, "%s", buff);
 										break;
 										
 						case FILL_INFO:	command_ptr = strtok_r(buff+1, ":", &support_ptr); 
@@ -135,5 +158,31 @@ int main(int argc, char **argv)
 	msgctl(s_q_id, IPC_RMID, NULL);
 	
 	return 0;
+}
+
+void closeRoom(int signo, siginfo_t* siginf, void* ignore){
+	printf("closeRoom here!\n");
+	//if(siginf->si_code == CLD_EXITED){
+	printf("CLD_EXITED!\n");
+	printf("looking for this %ul\n", siginf->si_pid);
+	rNode* tmp = room_list;
+	while(tmp && tmp->room->pid != siginf->si_pid) {
+		printf("and I got this %ul\n", tmp->room->pid);
+		tmp = tmp->next;
+	}
+	if(tmp){
+		char txt[80];
+		if(siginf->si_status == 1)	sprintf(txt, "%s won with %s",  tmp->room->player1->name, tmp->room->player2->name);
+		else						sprintf(txt, "%s won with %s",  tmp->room->player2->name, tmp->room->player1->name);
+		printf("log: %s\n", txt);
+		addLog(&history, txt);
+		if(history->next && history->next->next && history->next->next->next){
+			hLog* tmp_hist = history;
+			history = history->next;
+			free(tmp_hist);
+		}
+		deleteRoom(&room_list, tmp->room);
+	}
+	//}
 }
 

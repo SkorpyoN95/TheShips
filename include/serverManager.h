@@ -20,19 +20,13 @@ int s_q_id;
 
 typedef enum request_type { CREATE = 'c', JOIN = 'j', LIST = 'l', START = 's',
 							FILL_INFO = 'i', TURN = 't', MOVE = 'm', GAME_OVER = 'o',
-							RESULT = 'r' } reqType;
+							RESULT = 'r', HISTORY = 'h' } reqType;
 
 typedef struct {
   long mtype;
   int mid;
   char mtext[1024];
 } BaseMessage;
-
-typedef struct {
-	long mtype;
-	short mno;
-	Player mplayer;
-} PlayerDataMessage;
 
 int launchServer(char*);
 int joinServer(char*);
