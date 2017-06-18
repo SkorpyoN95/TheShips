@@ -23,6 +23,7 @@ int removeShip(Player*, int, int);
 void randomizeBoard(Player*);
 void resetBoard(Player*);
 void showBoard(fldState[10][10]);
+void show2Boards(fldState[10][10], fldState[10][10]);
 int countPlayerHP(Player*);
 void packBoard(Player*,char*, char*);
 void unpackBoard(char*, char*, Player*);

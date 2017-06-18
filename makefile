@@ -17,9 +17,6 @@ server: libs
 client: libs
 	gcc $(FLAGS) -Wall client.c $(LIBS) -o client -Iinclude/
 	
-test: libs
-	gcc $(FLAGS) -Wall test.c $(LIBS) -o test -Iinclude/
-	
 libs:
 	gcc $(FLAGS) -Wall -c $(SRC) -Iinclude/
 	

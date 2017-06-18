@@ -303,6 +303,30 @@ void showBoard(fldState brd[10][10]){
 	return;
 }
 
+void show2Boards(fldState brd1[10][10], fldState brd2[10][10]){
+	for(int i = 0; i < 10; i++){
+		for(int j = 0; j < 10; j++)
+			switch(brd1[i][j]){
+				case SEA:		printf(BLU_POLE); break;
+				case SHIP:		printf(GRN_POLE); break;
+				case DAMAGED:	printf(YEL_POLE); break;
+				case WRECK:		printf(RED_POLE); break;
+				default:		printf(BLK_POLE); break;
+			}
+		printf("\t\t");
+		for(int j = 0; j < 10; j++)
+			switch(brd2[i][j]){
+				case SEA:		printf(BLU_POLE); break;
+				case SHIP:		printf(GRN_POLE); break;
+				case DAMAGED:	printf(YEL_POLE); break;
+				case WRECK:		printf(RED_POLE); break;
+				default:		printf(BLK_POLE); break;
+			}
+		printf("\n");
+	}
+	return;
+}
+
 int countPlayerHP(Player* pl){
 	int counter = 0;
 	for(int i = 0; i < 20; ++i)

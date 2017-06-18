@@ -106,9 +106,7 @@ int main(int argc, char **argv)
 		int x, y;
 		memset(buff, 0, 256);
 		system("clear");
-		showBoard(me.board);
-		printf("\n");
-		showBoard(enemy.board);
+		show2Boards(me.board, enemy.board);
 		if(getResponse(sock_server, buff) == -1){
 			printf("getResponse failed");
 			exit(1);
@@ -143,9 +141,7 @@ int main(int argc, char **argv)
 		char coords[] = {0,0,0,0};
 		do{
 			system("clear");
-			showBoard(me.board);
-			printf("\n");
-			showBoard(enemy.board);
+			show2Boards(me.board, enemy.board);
 			printf("Put valid coordinates you want to attack:\n");
 			scanf("%s", coords);
 		}while(tolower(coords[0]) < 'a' || tolower(coords[0]) > 'j' || atoi(coords+1) < 1 || atoi(coords+1) > 10 || enemy.board[tolower(coords[0]) - 'a'][atoi(coords+1) - 1] != 0);
